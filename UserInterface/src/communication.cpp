@@ -2,7 +2,7 @@
 
 KernelInterface::KernelInterface(LPCSTR registeryName)
 {
-    hDriver = CreateFileA(registeryName, GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0);
+    hDriver = CreateFileA(registeryName, GENERIC_ALL, 0, 0, OPEN_EXISTING, FILE_ATTRIBUTE_SYSTEM, 0);
 }
 
 KernelInterface::~KernelInterface()

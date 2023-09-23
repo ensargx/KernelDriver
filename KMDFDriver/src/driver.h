@@ -1,6 +1,9 @@
 #pragma once
 
-#include <ntifs.h>
+#include <ntddk.h>
+
+PDEVICE_OBJECT g_pDeviceObject = NULL;
+UNICODE_STRING g_Dev, g_Dos;
 
 extern "C" NTSTATUS DriverEntry(PDRIVER_OBJECT pDriverObject, PUNICODE_STRING pRegistryPath);
 

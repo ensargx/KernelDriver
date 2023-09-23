@@ -6,12 +6,14 @@ NTSTATUS DriverEntry(PDRIVER_OBJECT pDriverObject, PUNICODE_STRING pRegistryPath
     DebugMessage("Driver Loading\n");
     UNREFERENCED_PARAMETER(pRegistryPath);
 
+    NTSTATUS status;
+
     pDriverObject->DriverUnload = (PDRIVER_UNLOAD)DriverUnload;
 
     RtlInitUnicodeString(&g_Dev, L"\\Device\\MyDriver");
     RtlInitUnicodeString(&g_Dos, L"\\DosDevices\\MyDriver");
 
-    NTSTATUS status = IoCreateDevice(pDriverObject, 0, &g_Dev, FILE_DEVICE_UNKNOWN, FILE_DEVICE_SECURE_OPEN, FALSE, &g_pDeviceObject);
+    status = IoCreateDevice(pDriverObject, 0, &g_Dev, FILE_DEVICE_UNKNOWN, FILE_DEVICE_SECURE_OPEN, FALSE, &g_pDeviceObject);
     if (!NT_SUCCESS(status))
     {
         DebugMessage("Failed to create device (IoCreateDevice), Error: 0x%08X\n", status);
