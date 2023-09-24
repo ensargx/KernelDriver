@@ -97,6 +97,16 @@ NTSTATUS IoControl(PDEVICE_OBJECT pDeviceObject, PIRP pIrp)
             bytesIO = sizeof(ULONG);
             break;
         }
+        // TEST AMAÇLI EKLENDÝ
+        case IO_GET_MY_CLASS:
+        {
+            DebugMessage("IOCTL: IO_GET_MY_CLASS\n");
+            PCommonClass* OutBuffer = (PCommonClass*)pIrp->AssociatedIrp.SystemBuffer;
+            OutBuffer->v1 = 1;
+            OutBuffer->v2 = 3;
+            bytesIO = sizeof(PCommonClass);
+            break;
+        }
         default:
         {
             DebugMessage("IOCTL: Invalid Device Request\n");

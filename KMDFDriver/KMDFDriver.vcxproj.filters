@@ -29,10 +29,10 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\driver.h">
+    <ClInclude Include="src\messages.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\messages.h">
+    <ClInclude Include="src\driver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
