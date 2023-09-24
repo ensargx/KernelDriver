@@ -27,12 +27,21 @@
     <ClCompile Include="src\driver.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\memory.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\messages.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\driver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\memory.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ntapi.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -19,23 +19,23 @@ int main()
         return 1;
     }
 
-    ULONG Address = 0;
-    DWORD BytesReturned = 0;
+    MemoryReadRequest request;
+    
+    // Get current process ID
+    request.PID = GetCurrentProcessId();
 
-    DeviceIoControl(hDriver, IO_GET_CLIENT_ADDRESS, &Address, sizeof(Address), &Address, sizeof(Address), &BytesReturned, NULL);
-    std::cout << "Address: " << std::hex << Address << std::endl;
+    int ChangeMe = 0x51;
+    request.pInAddress = &ChangeMe;
+    request.Size = sizeof(int);
 
-    CommonClass* commonClass = new CommonClass();
+    int outBuffer = 100;
+    request.pOutBuffer = &outBuffer;
+    DWORD bytesIO = 0;
 
-    std::cout << "v1: " << commonClass->v1 << std::endl;
-    std::cout << "v2: " << commonClass->v2 << std::endl;
+    DeviceIoControl(hDriver, IO_READ_MEMORY, &request, sizeof(request), NULL, NULL, &bytesIO, NULL);
 
-    std::cin.get();
-
-    DeviceIoControl(hDriver, IO_GET_MY_CLASS, commonClass, sizeof(CommonClass), commonClass, sizeof(CommonClass), &BytesReturned, NULL);
-
-    std::cout << "v1: " << commonClass->v1 << std::endl;
-    std::cout << "v2: " << commonClass->v2 << std::endl;
+    std::cout << "Out: ";
+    std::cout << "0x" << std::hex << outBuffer << "\n";
 
     return 0;
 }

@@ -1,5 +1,8 @@
 #include "driver.h"
 #include "messages.h"
+#include "memory.h"
+
+#include <ntddk.h>
 
 NTSTATUS DriverEntry(PDRIVER_OBJECT pDriverObject, PUNICODE_STRING pRegistryPath)
 {
@@ -105,6 +108,36 @@ NTSTATUS IoControl(PDEVICE_OBJECT pDeviceObject, PIRP pIrp)
             OutBuffer->v1 = 1;
             OutBuffer->v2 = 3;
             bytesIO = sizeof(PCommonClass);
+            break;
+        }
+        // END TEST
+        case IO_READ_MEMORY:
+        {
+            DebugMessage("IOCTL: IO_READ_MEMORY\n");
+            MemoryReadRequest* pRequest = (MemoryReadRequest*)pIrp->AssociatedIrp.SystemBuffer;
+
+            PVOID pInAddress = pRequest->pInAddress;
+            SIZE_T Size = pRequest->Size;
+            INT PID = pRequest->PID;
+
+            DebugMessage("IOCTL: IO_READ_MEMORY: PID: %d, Address: 0x%p, Size: %d\n", PID, pInAddress, Size);
+
+            PEPROCESS Process;
+            status = PsLookupProcessByProcessId((HANDLE)PID, &Process);
+            if (!NT_SUCCESS(status))
+            {
+                DebugMessage("IOCTL: IO_READ_MEMORY: PsLookupProcessByProcessId failed, Error: 0x%08X\n", status);
+                break;
+            }
+
+            status = Memory::Read(Process, pInAddress, pRequest->pOutBuffer, Size);
+            if (!NT_SUCCESS(status))
+            {
+                DebugMessage("IOCTL: IO_READ_MEMORY: Memory::Read failed, Error: 0x%08X\n", status);
+                break;
+            }
+
+            bytesIO = sizeof(MemoryReadRequest*);
             break;
         }
         default:
