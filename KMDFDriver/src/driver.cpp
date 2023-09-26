@@ -140,6 +140,35 @@ NTSTATUS IoControl(PDEVICE_OBJECT pDeviceObject, PIRP pIrp)
             bytesIO = sizeof(MemoryReadRequest*);
             break;
         }
+        case IO_WRITE_MEMORY:
+        {
+            DebugMessage("IOCTL: IO_WRITE_MEMORY\n");
+            MemoryWriteRequest* pRequest = (MemoryWriteRequest*)pIrp->AssociatedIrp.SystemBuffer;
+
+            PVOID pInAddress = pRequest->address;
+            SIZE_T Size = pRequest->size;
+            INT PID = pRequest->PID;
+
+            DebugMessage("IOCTL: IO_WRITE_MEMORY: PID: %d, Address: 0x%p, Size: %d\n", PID, pInAddress, Size);
+
+            PEPROCESS Process;
+            status = PsLookupProcessByProcessId((HANDLE)PID, &Process);
+            if (!NT_SUCCESS(status))
+            {
+                DebugMessage("IOCTL: IO_WRITE_MEMORY: PsLookupProcessByProcessId failed, Error: 0x%08X\n", status);
+                break;
+            }
+
+            status = Memory::Write(Process, pInAddress, pRequest->inBuffer, Size);
+            if (!NT_SUCCESS(status))
+            {
+                DebugMessage("IOCTL: IO_WRITE_MEMORY: Memory::Write failed, Error: 0x%08X\n", status);
+                break;
+            }
+
+            bytesIO = sizeof(MemoryWriteRequest*);
+            break;
+        }
         default:
         {
             DebugMessage("IOCTL: Invalid Device Request\n");

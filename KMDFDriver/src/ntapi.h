@@ -2,11 +2,7 @@
 
 #include <ntifs.h>
 
-extern "C"
-NTKERNELAPI
-NTSTATUS
-NTAPI
-MmCopyVirtualMemory(
+extern "C" NTKERNELAPI NTSTATUS NTAPI MmCopyVirtualMemory(
     _In_ PEPROCESS FromProcess,
     _In_ PVOID FromAddress,
     _In_ PEPROCESS ToProcess,

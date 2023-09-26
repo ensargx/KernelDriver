@@ -23,4 +23,5 @@ struct MemoryWriteRequest
 extern "C" namespace Memory
 {
     NTSTATUS Read(PEPROCESS Process, PVOID SourceAddress, PVOID TargetAddress, SIZE_T Size);
+    NTSTATUS Write(PEPROCESS Process, PVOID TargetAddress, PVOID SourceAddress, SIZE_T Size);
 }
