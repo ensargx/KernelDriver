@@ -120,7 +120,7 @@ NTSTATUS IoControl(PDEVICE_OBJECT pDeviceObject, PIRP pIrp)
             SIZE_T Size = pRequest->Size;
             INT PID = pRequest->PID;
 
-            DebugMessage("IOCTL: IO_READ_MEMORY: PID: %d, Address: 0x%p, Size: %d\n", PID, pInAddress, Size);
+            DebugMessage("IOCTL: IO_READ_MEMORY: PID: %d, Address: 0x%p, Size: %llu\n", PID, pInAddress, Size);
 
             PEPROCESS Process;
             status = PsLookupProcessByProcessId((HANDLE)PID, &Process);
@@ -149,7 +149,7 @@ NTSTATUS IoControl(PDEVICE_OBJECT pDeviceObject, PIRP pIrp)
             SIZE_T Size = pRequest->size;
             INT PID = pRequest->PID;
 
-            DebugMessage("IOCTL: IO_WRITE_MEMORY: PID: %d, Address: 0x%p, Size: %d\n", PID, pInAddress, Size);
+            DebugMessage("IOCTL: IO_WRITE_MEMORY: PID: %d, Address: 0x%p, Size: %llu\n", PID, pInAddress, Size);
 
             PEPROCESS Process;
             status = PsLookupProcessByProcessId((HANDLE)PID, &Process);
