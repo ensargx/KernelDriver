@@ -1,6 +1,7 @@
 #include "driver.h"
 #include "messages.h"
 #include "memory.h"
+#include "manuelmap.h"
 
 #include <ntddk.h>
 
@@ -167,6 +168,49 @@ NTSTATUS IoControl(PDEVICE_OBJECT pDeviceObject, PIRP pIrp)
             }
 
             bytesIO = sizeof(MemoryWriteRequest*);
+            break;
+        }
+        case IO_MANUEL_MAP_DLL:
+        {
+            DebugMessage("IOCTL: IO_MANUEL_MAP_DLL\n");
+            ManuelMapRequest* pRequest = (ManuelMapRequest*)pIrp->AssociatedIrp.SystemBuffer;
+
+            DWORD ThreadId = (DWORD)pRequest->PID;
+            // UNICODE_STRING DllPath = pRequest->DllPath;
+
+            // DebugMessage("IOCTL: IO_MANUEL_MAP_DLL: ThreadID: %d, DllPath: %wZ\n", ThreadId, DllPath);
+            DebugMessage("IOCTL: IO_MANUEL_MAP_DLL: ThreadID: %d\n", ThreadId);
+            
+            // Get PETHREAD from ThreadId
+            DebugMessage("IOCTL: IO_MANUEL_MAP_DLL: PsLookupThreadByThreadId\n");
+            PETHREAD PEThread;
+            status = PsLookupThreadByThreadId((HANDLE)ThreadId, &PEThread);
+            if (!NT_SUCCESS(status))
+            {
+                DebugMessage("IOCTL: IO_MANUEL_MAP_DLL: PsLookupThreadByThreadId failed, Error: 0x%08X\n", status);
+                break;
+            }
+
+            DebugMessage("IOCTL: IO_MANUEL_MAP_DLL: PsLookupThreadByThreadId success\n");
+
+            Suspender PsSuspendThread;
+            UNICODE_STRING routineName;
+            RtlInitUnicodeString(&routineName, L"PsSuspendProcess");
+            PsSuspendThread = (Suspender)((ULONG64)MmGetSystemRoutineAddress(&routineName) + (0x160));
+
+            DebugMessage("IOCTL: IO_MANUEL_MAP_DLL: PsSuspendThread: 0x%p\n", PsSuspendThread);
+
+            // Stop the execution of thread in the process
+            ULONG junq;
+            status = PsSuspendThread(PEThread, &junq);
+            if (!NT_SUCCESS(status))
+            {
+                DebugMessage("IOCTL: IO_MANUEL_MAP_DLL: PsSuspendThread failed, Error: 0x%08X\n", status);
+                break;
+            }
+
+            DebugMessage("IOCTL: IO_MANUEL_MAP_DLL: PsSuspendThread success\n");
+
             break;
         }
         default:

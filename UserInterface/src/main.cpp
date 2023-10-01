@@ -1,58 +1,26 @@
-#include <iostream>
 #include "communication.h"
+#include <iostream>
 
-class MyStruct
+#include <Windows.h>
+#include <winternl.h>
+
+#pragma comment(lib, "ntdll.lib")
+
+
+struct ManuelMapRequest
 {
-public:
-    int var1 = 0x12345678;
-    int var2 = 0x54545454;
+    INT PID;
+    UNICODE_STRING DllPath;
 };
 
-class Memory
+void loopThread()
 {
-public:
-    ~Memory()
+    while (true)
     {
-        CloseHandle(hDriver);
+        std::cout << "Looping\n";
+        Sleep(5000);
     }
-
-    bool Init(int pid, HANDLE hDriver)
-    {
-        this->pid = pid;
-        this->hDriver = hDriver;
-        return true;
-    }
-
-    template <typename T>
-    T Read(PVOID address)
-    {
-        T buffer;
-        MemoryReadRequest request;
-        request.PID = pid;
-        request.pInAddress = address;
-        request.Size = sizeof(T);
-        request.pOutBuffer = &buffer;
-        DWORD bytesIO = 0;
-        DeviceIoControl(hDriver, IO_READ_MEMORY, &request, sizeof(request), NULL, NULL, &bytesIO, NULL);
-        return buffer;
-    }
-
-    template <typename T>
-    bool Write(PVOID address, T value)
-    {
-        MemoryWriteRequest request;
-        request.PID = pid;
-        request.address = address;
-        request.size = sizeof(T);
-        request.inBuffer = &value;
-        DWORD bytesIO = 0;
-        DeviceIoControl(hDriver, IO_WRITE_MEMORY, &request, sizeof(request), NULL, NULL, &bytesIO, NULL);
-        return true;
-    }
-private:
-    int pid;
-    HANDLE hDriver;
-};
+}
 
 int main()
 {
@@ -64,31 +32,43 @@ int main()
         std::cout << "Failed to get a handle to the driver\n";
         return 1;
     }
+    std::cout << "Got a handle to the driver\nPress Enter to continue...\n";
+    std::cin.get();
 
-    int PID = GetCurrentProcessId();
+    int PID;
 
-    Memory memory;
-    memory.Init(PID, hDriver);
+    UNICODE_STRING DllPath;
+    // Initialize the UNICODE_STRING with a wide character string
+    // WCHAR myString[] = L"C:\\Users\\admin\\Desktop\\basicdll.dll";
 
-    MyStruct myStruct;
-    myStruct.var1 = 123321;
-    myStruct.var2 = 456654;
+    // Initialize the UNICODE_STRING structure
+    // RtlInitUnicodeString(&DllPath, myString);
 
-    MyStruct myStruct2 = memory.Read<MyStruct>(&myStruct);
+    ManuelMapRequest request;
+    // request.PID = PID;
+    // request.DllPath = DllPath;
 
-    std::cout << "myStruct2.var1: " << std::hex << myStruct2.var1 << "\n";
-    std::cout << "myStruct2.var2: " << std::hex << myStruct2.var2 << "\n";
+    HANDLE hThread;
+    hThread = CreateThread(NULL, NULL, (LPTHREAD_START_ROUTINE)loopThread, NULL, NULL, NULL);
+    if (!hThread)
+    {
+        std::cout << "Failed to create thread\n";
+        return 1;
+    }
+    std::cout << "Thread created, handle: " << std::hex << hThread << "\n";
+    std::cout << "Press enter to continue\n";
 
-    MyStruct myStruct3;
-    myStruct3.var1 = 0x11111111;
-    myStruct3.var2 = 0x22222222;
+    request.PID = GetThreadId(hThread);
+    std::cin.get();
 
-    memory.Write<MyStruct>(&myStruct, myStruct3);
-
-    std::cout << "myStruct.var1: " << std::hex << myStruct.var1 << "\n";
-    std::cout << "myStruct.var2: " << std::hex << myStruct.var2 << "\n";
-
-
+    std::cout << "Sending IOCTL to the driver\n";
+    DWORD bytesIO;
+    BOOL result = DeviceIoControl(hDriver, IO_MANUEL_MAP_DLL, &request, sizeof(ManuelMapRequest), NULL, 0, &bytesIO, NULL);
+    if (!result)
+    {
+        std::cout << "Failed to send IOCTL to the driver\n";
+        return 1;
+    }
 
     return 0;
 }

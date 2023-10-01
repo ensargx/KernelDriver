@@ -115,10 +115,12 @@
     <FilesToPackage Include="$(TargetPath)" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\manuelmap.cpp" />
     <ClCompile Include="src\memory.cpp" />
     <ClCompile Include="src\driver.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\manuelmap.h" />
     <ClInclude Include="src\memory.h" />
     <ClInclude Include="src\driver.h" />
     <ClInclude Include="src\messages.h" />
